@@ -15,7 +15,7 @@ public class BookDaoImpl implements IBookDao{
     @Override
     public int insertBook(String string, Book book) {
         int num = 0;
-        Object [] objects = {book.getBookNum(),book.getBookName(),book.getBookType(),book.getBookAuthor(),book.getBookFactory()};
+        Object [] objects = {book.getBookNum(),book.getBookName(),book.getBookType(),book.getBookAuthor(),book.getBookFactory(),book.getBookCount()};
         num = dButil.insert(string,objects);
         dButil.closeConnection();
         return num;
@@ -33,7 +33,7 @@ public class BookDaoImpl implements IBookDao{
     @Override
     public int updateBook(String string, Book book) {
         int num = 0;
-        Object [] objects = {book.getBookName(),book.getBookType(),book.getBookAuthor(),book.getBookFactory(),book.getBookNum()};
+        Object [] objects = {book.getBookName(),book.getBookType(),book.getBookAuthor(),book.getBookFactory(),book.getBookCount(),book.getBookNum()};
         num = dButil.update(string,objects);
         dButil.closeConnection();
         return num;

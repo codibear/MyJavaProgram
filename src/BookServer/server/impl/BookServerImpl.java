@@ -14,7 +14,7 @@ public class BookServerImpl implements IBookServer {
 
     @Override
     public int insertBookS(Book book) {
-        String sql = "insert into book(bookNum,bookName,bookType,bookAuthor,bookFactory)values(?,?,?,?,?)";
+        String sql = "insert into book(bookNum,bookName,bookType,bookAuthor,bookFactory,bookCount)values(?,?,?,?,?,?)";
         int num = bookDao.insertBook(sql,book);
         return num;
     }
@@ -30,7 +30,7 @@ public class BookServerImpl implements IBookServer {
     //1.通过书号，更改书名
     @Override
     public int updateBookS(Book book) {
-        String sql = "update book set bookName=?,bookType=?,bookAuthor=?,bookFactory=? where bookNum=?";
+        String sql = "update book set bookName=?,bookType=?,bookAuthor=?,bookFactory=?,bookCount=? where bookNum=?";
         int num = bookDao.updateBook(sql,book);
         return num;
     }

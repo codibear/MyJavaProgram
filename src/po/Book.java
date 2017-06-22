@@ -12,6 +12,15 @@ public class Book implements Serializable {
     private String bookType;
     private String bookAuthor;
     private String bookFactory;
+    private int bookCount;
+
+    public int getBookCount() {
+        return bookCount;
+    }
+
+    public void setBookCount(int bookCount) {
+        this.bookCount = bookCount;
+    }
 
     public int getBid() {
         return bid;

@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<sql>
+    <driver>com.mysql.jdbc.Driver</driver>
+    <conn>jdbc:mysql://localhost:3306/mybook</conn>
+    <username>root</username>
+    <password>root</password>
+</sql>

@@ -1,5 +1,7 @@
 package BookServer.util;
 
+import BookServer.server.impl.GetConnection;
+
 import java.sql.*;
 
 /**
@@ -9,11 +11,13 @@ public class DButil implements IDButil{
     private Connection conn = null;
     private ResultSet rs = null;
     private PreparedStatement pst = null;
+    private GetConnection getConnection = new GetConnection();
     @Override
     public void getConnection() {
         try {
-            Class.forName("com.mysql.jdbc.Driver");
-            conn = DriverManager.getConnection("jdbc:mysql://localhost:3306/mybook","root","root");
+            Class.forName(getConnection.getValue("driver"));
+            conn = DriverManager.getConnection(getConnection.getValue("conn"),getConnection.getValue
+                    ("username"),getConnection.getValue("password"));
         } catch (ClassNotFoundException e) {
             e.printStackTrace();
         }catch(SQLException e){
