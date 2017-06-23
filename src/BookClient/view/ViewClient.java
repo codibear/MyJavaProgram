@@ -79,14 +79,26 @@ public class ViewClient {
             //ois = new ObjectInputStream(is);
             FlagAndObject userListBack =(FlagAndObject) ois.readObject();
             flag = userListBack.getFlag();
-            if(flag==0){
+            List  userArrayBack = userListBack.getArrayList();
+            User userBack=(User)userArrayBack.get(0);
+            if(flag==200){//图书管理员
                 //进入操作界面
-                System.out.println("登录成功！");
+                System.out.println("\t\t\t\t登录成功！欢迎您尊敬的"+userBack.getUserName()+"图书管理员");
                 //s.close(); //如果在这里关闭socke，后面没法操作，程序关闭
                 while (true){
                     show(s);
                 }
-            }else {
+            }else if(flag==300){//学生界面
+                System.out.println("\t\t\t\t登录成功！欢迎您尊敬的"+userBack.getUserName()+"同学");
+                while (true){
+                   //showStudent(s);
+                }
+            }else if(flag==100){//帐户管理员
+                System.out.println("\t\t\t\t登录成功！欢迎您尊敬的"+userBack.getUserName()+"帐户管理员");
+                while (true){
+                    showAccount(s);
+                }
+            } else {
                 System.out.println("登录失败，请重新登录！");
                 //s.close();
             }
@@ -98,12 +110,27 @@ public class ViewClient {
         }catch (ClassNotFoundException e){
             e.printStackTrace();
         }
+    }
 
-
-        //管家操作
-        System.out.println("请选择相应的操作：\n1.登录\n2.查看账户\n删除帐户");
+    public static void showAccount(Socket s){
+        System.out.println("======================成功进入帐户管理界面======================");
+        System.out.println("请选择操作代号：\n1.创建帐户\n2.删除帐户");
+        int check = in.nextInt();
+        switch (check){
+            case 1:
+                addUser(s);
+                break;
+            case 2:
+                deleteUser(s);
+                break;
+            default:
+                //退出
+                //close(s);
+                break;
+        }
 
     }
+
     public static void show(Socket s){
         System.out.println("======================成功进入电子图书馆======================");
         System.out.println("请选择操作代号：\n1.录入图书\n2.查询图书\n3.修改图书\n4.删除图书");
@@ -143,6 +170,91 @@ public class ViewClient {
         }
 
     }
+
+    public static void addUser(Socket s){
+        FlagAndObject fo = new FlagAndObject();
+        List <User> users= new ArrayList<>();
+        try {
+            //准备发送信息
+            //s = new Socket("127.0.0.1",9999);
+            os = s.getOutputStream();
+            // oss = new ObjectOutputStream(os);
+
+            System.out.println("××××××××××   录入帐户   ××××××××××");
+            boolean b = true;
+            while (b) {
+                User user = new User();
+                System.out.println("请输入帐户：");
+                user.setUserName(in.next());
+                System.out.println("请输入密码：");
+                user.setPwd(in.next());
+                System.out.println("请输入权限：（1 ----- 同您一样的权限\t2 ----- 图书管理员\t3 ----- 学生帐户）");
+                user.setAuthority(in.nextInt());
+                users.add(user);
+                System.out.println("是否继续录入？  （输入N退出录入，任意键继续）");
+                if (in.next().equalsIgnoreCase("n")){
+                  b=false;
+                }
+            }
+            fo.setFlag(10);
+            fo.setArrayList(users);
+            oss.writeObject(fo);
+
+            //接收信息
+            //is = s.getInputStream();
+            //ois = new ObjectInputStream(is);
+
+            FlagAndObject fo2= (FlagAndObject)ois.readObject();
+            int flag = fo2.getFlag();
+            if(flag==100||flag==200||flag==300){
+                System.out.println("录入成功！");
+            }else {
+                System.out.println("录入失败@请重新录入！");
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }catch (ClassNotFoundException e){
+            e.printStackTrace();
+        }
+    }
+
+    //40 删除用户
+    public static void deleteUser(Socket s){
+        FlagAndObject fo = new FlagAndObject();
+        List <User> users= new ArrayList<>();
+        try {
+            //准备发送信息
+            //s = new Socket("127.0.0.1",9999);
+            os = s.getOutputStream();
+            //oss = new ObjectOutputStream(os);
+
+            System.out.println("××××××××××   删除账号   ××××××××××");
+            User user = new User();
+            System.out.println("请输入要删除账号：");
+            user.setUserName(in.next());
+            users.add(user);
+            fo.setFlag(40);
+            fo.setArrayList(users);
+            oss.writeObject(fo);
+
+            //接收信息
+            //is = s.getInputStream();
+            // ois = new ObjectInputStream(is);
+
+            FlagAndObject fo2= (FlagAndObject)ois.readObject();
+            int flag = fo2.getFlag();
+            if(flag==40){
+                System.out.println("删除成功！");
+            }else {
+                System.out.println("账号库中没有此账号@请重新输入！");
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }catch (ClassNotFoundException e){
+            e.printStackTrace();
+        }
+    }
+
     //bookNum,bookName,bookType,bookAuthor,bookFactory
     //想服务器传递flag=1 证明在执行添加图书操作
     public static void addBook(Socket s){
@@ -391,7 +503,7 @@ public class ViewClient {
             os = s.getOutputStream();
             //oss = new ObjectOutputStream(os);
 
-            System.out.println("××××××××××   修改图书   ××××××××××");
+            System.out.println("××××××××××   删除图书   ××××××××××");
             Book book = new Book();
             System.out.println("请输入要删除的图书书号：");
             book.setBookNum(in.next());

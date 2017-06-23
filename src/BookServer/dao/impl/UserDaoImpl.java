@@ -16,7 +16,7 @@ public class UserDaoImpl implements IUserDao{
     @Override
     public int insertUser(String string, User user) {
         int num = 0;
-        Object [] objects = {user.getUserName(),user.getPwd()};
+        Object [] objects = {user.getUserName(),user.getPwd(),user.getAuthority()};
         num = dButil.insert(string,objects);
         dButil.closeConnection();
         return num;

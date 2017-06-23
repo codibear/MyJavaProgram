@@ -9,6 +9,15 @@ public class User implements Serializable {
     private int uid;
     private String userName;
     private String pwd;
+    private int authority;
+
+    public int getAuthority() {
+        return authority;
+    }
+
+    public void setAuthority(int authority) {
+        this.authority = authority;
+    }
 
     public int getUid() {
         return uid;

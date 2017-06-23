@@ -13,6 +13,7 @@ import java.net.Socket;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Scanner;
 
@@ -47,7 +48,7 @@ public class ViewServer implements Runnable{
     }
     @Override
     public void run() {
-        int flag = 0;
+        int flag = -1;
 
         try {
             while (true){
@@ -58,31 +59,102 @@ public class ViewServer implements Runnable{
                 fo = (FlagAndObject)ois.readObject();
                 flag = fo.getFlag();
                 System.out.println("接收数据成功");
+
+
                 //匹配--0---登录操作
                 if(flag==0){
+                    User userBack = new User();
                     //数据库验证步骤
                     System.out.println("进行账户验证！");
                     List userList = fo.getArrayList();
                     User user  = (User)userList.get(0);
-                    boolean b  = userSever.selectUserByUsernameAndPwdS(user);
                     FlagAndObject foBackUser = new FlagAndObject();
-                    //读取传来的数据
-                    if(b){
-                        flag=0;
-                        foBackUser.setFlag(flag);
-                        OutputStream os = s.getOutputStream();
+                    HashMap hashMap = userSever.selectUserByUsernameAndPwdS(user);
+                    if(hashMap.size()>0){
+                        int b = (int)hashMap.get("authority");
+                        String userName  = (String)hashMap.get("userName");
+                        String pwd = (String)hashMap.get("pwd");
 
-                        oos.writeObject(foBackUser);
-                        System.out.println("验证成功！");
+
+                        userBack.setPwd(pwd);
+                        userBack.setUserName(userName);
+
+                        List arrayList = new ArrayList();
+                        arrayList.add(userBack);
+
+                        //读取传来的数据
+                        if(b==2){//图书管理员
+                            flag=200;
+                            foBackUser.setFlag(flag);
+                            foBackUser.setArrayList(arrayList);
+                            OutputStream os = s.getOutputStream();
+
+                            oos.writeObject(foBackUser);
+                            System.out.println("验证成功！");
+                        }else if(b==1){//帐户管理员
+                            flag=100;
+                            foBackUser.setFlag(flag);
+                            foBackUser.setArrayList(arrayList);
+                            OutputStream os = s.getOutputStream();
+
+                            oos.writeObject(foBackUser);
+                            System.out.println("验证成功！");
+                        }else if(b==3){//学生
+                            flag=300;
+                            foBackUser.setFlag(flag);
+                            foBackUser.setArrayList(arrayList);
+                            OutputStream os = s.getOutputStream();
+
+                            oos.writeObject(foBackUser);
+                            System.out.println("验证成功！");
+                        }
+                        else {
+                            flag=-1;
+                            foBackUser.setFlag(flag);
+                            OutputStream os = s.getOutputStream();
+
+                            oos.writeObject(foBackUser);
+                            System.out.println("验证失败@");
+                        }
                     }else {
                         flag=-1;
                         foBackUser.setFlag(flag);
+                        userList.add(user);
+                        foBackUser.setArrayList(userList);
                         OutputStream os = s.getOutputStream();
 
                         oos.writeObject(foBackUser);
                         System.out.println("验证失败@");
                     }
                 }
+
+                //匹配--10---录入帐户功能
+                if (flag==10){
+                    System.out.println("进行账号录入");
+                    List<User> userList = fo.getArrayList();
+                    int num=0;
+                    FlagAndObject userInsertBack = new FlagAndObject();
+                    for(int i = 0;i<userList.size();i++){
+                        User user = userList.get(i);
+                        num = userSever.insertUserS(user);
+                    }
+
+                    if(num>0){
+                        userInsertBack.setFlag(100);
+                        OutputStream os = s.getOutputStream();
+
+                        oos.writeObject(userInsertBack);
+                        System.out.println("录入成功！ ");
+                    }else {
+                        userInsertBack.setFlag(-1);
+                        OutputStream os = s.getOutputStream();
+
+                        oos.writeObject(userInsertBack);
+                        System.out.println("录入失败！ ");
+                    }
+                }
+
+                //匹配--1---录入图书功能
                 if (flag==1){
                     System.out.println("进行图书录入");
                     List<Book> bookList = fo.getArrayList();
@@ -282,6 +354,30 @@ public class ViewServer implements Runnable{
                     FlagAndObject bookInsertBack = new FlagAndObject();
                     if(num>0){
                         bookInsertBack.setFlag(4);
+                        OutputStream os = s.getOutputStream();
+
+                        oos.writeObject(bookInsertBack);
+                        System.out.println("删除成功！ ");
+                    }else {
+                        bookInsertBack.setFlag(-1);
+                        OutputStream os = s.getOutputStream();
+
+                        oos.writeObject(bookInsertBack);
+                        System.out.println("删除失败！ ");
+                    }
+                }
+                //通过书号删除图书
+                if (flag==40){
+                    User userBack;
+                    System.out.println("进行通过书号删除图书");
+                    List<User> userList = fo.getArrayList();
+
+                    User user;
+                    user = userList.get(0);
+                    int num = userSever.deleteUserS(user);
+                    FlagAndObject bookInsertBack = new FlagAndObject();
+                    if(num>0){
+                        bookInsertBack.setFlag(40);
                         OutputStream os = s.getOutputStream();
 
                         oos.writeObject(bookInsertBack);
